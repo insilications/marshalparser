@@ -1,0 +1,13 @@
+# This file contains additional build requirements that did not get
+# picked up automatically. One name per line, no whitespace.
+buildreq-distutils3
+findutils
+pip
+pluggy
+py-python
+pytest
+python3-dev
+setuptools
+tox
+virtualenv
+wheel

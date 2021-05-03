@@ -1,0 +1,6 @@
+#pip install poetry
+#export PATH="/builddir/.local/bin:$PATH"
+#poetry new --src .
+#poetry init --no-interaction
+#poetry install
+#poetry build -f sdist
