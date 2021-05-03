@@ -4,10 +4,10 @@
 #
 %define keepstatic 1
 Name     : marshalparser
-Version  : 0.2.5
-Release  : 3
-URL      : file:///aot/build/clearlinux/packages/marshalparser/marshalparser-0.2.5.tar.gz
-Source0  : file:///aot/build/clearlinux/packages/marshalparser/marshalparser-0.2.5.tar.gz
+Version  : 0.2.6
+Release  : 4
+URL      : file:///aot/build/clearlinux/packages/marshalparser/marshalparser-0.2.6.tar.gz
+Source0  : file:///aot/build/clearlinux/packages/marshalparser/marshalparser-0.2.6.tar.gz
 Summary  : Parser for byte-cache .pyc files
 Group    : Development/Tools
 License  : FTL GPL-2.0+ MIT Zlib
@@ -16,10 +16,12 @@ Requires: marshalparser-python = %{version}-%{release}
 Requires: marshalparser-python3 = %{version}-%{release}
 BuildRequires : buildreq-distutils3
 BuildRequires : findutils
+BuildRequires : pep517
 BuildRequires : pip
 BuildRequires : pluggy
 BuildRequires : py-python
 BuildRequires : pytest
+BuildRequires : python-build
 BuildRequires : python3-dev
 BuildRequires : setuptools
 BuildRequires : tox
@@ -28,7 +30,6 @@ BuildRequires : wheel
 # Suppress stripping binaries
 %define __strip /bin/true
 %define debug_package %{nil}
-Patch1: 0001-Add-setup.py-shim.patch
 
 %description
 # Marshal parser
@@ -66,7 +67,6 @@ python3 components for the marshalparser package.
 %prep
 %setup -q -n marshalparser
 cd %{_builddir}/marshalparser
-%patch1 -p1
 
 %build
 ## build_prepend content
@@ -82,7 +82,7 @@ unset https_proxy
 unset no_proxy
 export SSL_CERT_FILE=/var/cache/ca-certs/anchors/ca-certificates.crt
 export LANG=C.UTF-8
-export SOURCE_DATE_EPOCH=1614445814
+export SOURCE_DATE_EPOCH=1620017935
 export GCC_IGNORE_WERROR=1
 ## altflags1 content
 export CFLAGS="-g -O3 --param=lto-max-streaming-parallelism=16 -march=native -mtune=native -fgraphite-identity -Wall -Wl,--as-needed -Wl,--build-id=sha1 -Wl,--enable-new-dtags -Wl,--hash-style=gnu -Wl,-O2 -Wl,-z,now -Wl,-z,relro -falign-functions=32 -flimit-function-alignment -fasynchronous-unwind-tables -fdevirtualize-at-ltrans -floop-nest-optimize -fno-math-errno -fno-semantic-interposition -fno-stack-protector -fno-trapping-math -ftree-loop-distribute-patterns -ftree-loop-vectorize -ftree-vectorize -funroll-loops -fuse-ld=bfd -fuse-linker-plugin -malign-data=cacheline -feliminate-unused-debug-types -fipa-pta -flto=16 -fno-plt -mtls-dialect=gnu2 -Wl,-sort-common -Wno-error -Wp,-D_REENTRANT -pipe -fPIC"
@@ -109,8 +109,13 @@ export PATH="/builddir/.local/bin:$PATH"
 # export CCACHE_DISABLE=1
 ## altflags1 end
 export MAKEFLAGS=%{?_smp_mflags}
+if [ ! -f setup.py ]; then
+printf "#!/usr/bin/env python\nfrom setuptools import setup\nsetup()" > setup.py
+chmod +x setup.py
 python3 setup.py build
-
+else
+python3 setup.py build
+fi
 %install
 export MAKEFLAGS=%{?_smp_mflags}
 rm -rf %{buildroot}
